@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>秋招择业：五行告诉你，你适合去哪座城市、做什么行业？</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: #f7f3eb;
+    color: #3d3327;
+    line-height: 1.7;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+  }
+  .container { max-width: 480px; margin: 0 auto; }
+
+  /* ===== 顶部 ===== */
+  header { text-align: center; padding: 24px 10px 20px; }
+  header h1 {
+    font-size: 22px; font-weight: 600; color: #2d4a3e;
+    letter-spacing: 0.5px; line-height: 1.4;
+  }
+  .gold-line { width: 44px; height: 2px; background: #c9a96e; margin: 12px auto; }
+  .subtitle { font-size: 12px; color: #8a7d6b; letter-spacing: 0.5px; }
+
+  /* ===== 验证码页 ===== */
+  #codeArea {
+    background: #fffdf8; border-radius: 18px; padding: 44px 24px;
+    text-align: center; box-shadow: 0 4px 20px rgba(61,51,39,0.07);
+    animation: fadeIn 0.5s ease;
+  }
+  .lock-icon { font-size: 40px; margin-bottom: 14px; }
+  .code-title { font-size: 18px; font-weight: 600; color: #2d4a3e; margin-bottom: 6px; }
+  .code-hint { font-size: 13px; color: #8a7d6b; margin-bottom: 26px; }
+  #codeInput {
+    width: 100%; padding: 16px; font-size: 22px; text-align: center;
+    letter-spacing: 10px; border: 1.5px solid #e5dcc8; border-radius: 12px;
+    background: #fff; color: #2d4a3e; outline: none; margin-bottom: 18px;
+  }
+  #codeInput:focus { border-color: #c9a96e; }
+
+  /* ===== 通用按钮 ===== */
+  .btn {
+    display: block; width: 100%; padding: 16px; border: none;
+    border-radius: 12px; font-size: 16px; font-weight: 600;
+    cursor: pointer; letter-spacing: 2px; transition: opacity 0.2s;
+  }
+  .btn-primary { background: #2d4a3e; color: #f7f3eb; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-outline {
+    background: transparent; color: #2d4a3e;
+    border: 1.5px solid #2d4a3e;
+  }
+  .btn-gold { background: #c9a96e; color: #fff; }
+  .btn-gold:hover { opacity: 0.9; }
+
+  /* 答题区导航按钮 */
+  .nav-buttons {
+    display: flex; gap: 12px; margin-top: 18px;
+  }
+  .nav-buttons .btn { margin-top: 0; }
+  .nav-buttons .btn-half { flex: 1; }
+
+  /* ===== 进度条 ===== */
+  .progress-wrap {
+    background: #e5dcc8; border-radius: 10px; height: 8px;
+    margin-bottom: 12px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; background: linear-gradient(90deg, #c9a96e, #2d4a3e);
+    border-radius: 10px; transition: width 0.4s ease; width: 0%;
+  }
+  .progress-text {
+    text-align: center; font-size: 13px; color: #8a7d6b;
+    margin-bottom: 14px; letter-spacing: 0.5px;
+  }
+
+  /* ===== 题目卡片 ===== */
+  .card {
+    background: #fffdf8; border-radius: 18px; padding: 24px 20px;
+    box-shadow: 0 4px 20px rgba(61,51,39,0.07);
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .question-text {
+    font-size: 17px; font-weight: 600; color: #2d4a3e;
+    margin-bottom: 18px; line-height: 1.5;
+  }
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .option {
+    padding: 14px 18px; border: 1.5px solid #e5dcc8; border-radius: 14px;
+    font-size: 15px; cursor: pointer; transition: all 0.25s ease;
+    background: #fff; color: #3d3327; line-height: 1.5;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .option:hover { border-color: #c9a96e; background: #faf7f0; }
+  .option.selected {
+    border-color: #2d4a3e; background: #2d4a3e; color: #f7f3eb;
+  }
+  .option-letter {
+    flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%;
+    background: #f0ece0; color: #2d4a3e; font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .option.selected .option-letter {
+    background: #c9a96e; color: #fff;
+  }
+
+  /* ===== 结果页 ===== */
+  #resultArea { display: none; }
+  .result-hero { text-align: center; padding: 10px 0 18px; }
+  .element-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 80px; height: 80px; border-radius: 50%;
+    font-size: 38px; color: #fff; margin-bottom: 14px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+  .el-jin  { background: linear-gradient(135deg, #d4af37, #b8941f); }
+  .el-mu   { background: linear-gradient(135deg, #6b9e5a, #4a7a3e); }
+  .el-shui { background: linear-gradient(135deg, #5a8aa0, #3d6b80); }
+  .el-huo  { background: linear-gradient(135deg, #d4694a, #b54a2e); }
+  .el-tu   { background: linear-gradient(135deg, #a0845a, #80683e); }
+
+  .element-name {
+    font-size: 24px; font-weight: 700; color: #2d4a3e; margin-bottom: 4px;
+  }
+  .element-pct {
+    display: inline-block; font-size: 14px; color: #c9a96e;
+    font-weight: 600; margin-bottom: 16px;
+  }
+  .profile-text {
+    font-size: 14px; color: #4a3f33; line-height: 1.8;
+    text-align: left; padding: 0 4px;
+  }
+  .section-label {
+    font-size: 12px; color: #c9a96e; letter-spacing: 1.5px;
+    margin: 20px 0 6px; font-weight: 600;
+  }
+  .section-body { font-size: 14px; color: #3d3327; line-height: 1.7; }
+  .city-tags {
+    display: flex; justify-content: center; gap: 10px;
+    flex-wrap: wrap; margin-top: 8px;
+  }
+  .city-tag {
+    padding: 7px 18px; background: #f0ece0; border-radius: 20px;
+    font-size: 14px; color: #2d4a3e; font-weight: 500;
+  }
+  .industry-list {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;
+  }
+  .industry-tag {
+    padding: 5px 14px; background: #fff; border: 1px solid #e5dcc8;
+    border-radius: 16px; font-size: 13px; color: #4a3f33;
+  }
+  .advice-box {
+    background: #f0ece0; border-left: 3px solid #c9a96e;
+    padding: 14px 16px; border-radius: 8px; font-size: 14px;
+    color: #3d3327; line-height: 1.7; margin-top: 8px;
+  }
+
+  /* ===== 具体岗位折叠区 ===== */
+  .jobs-toggle-btn {
+    width: 100%; padding: 16px; margin-top: 22px;
+    background: linear-gradient(135deg, #2d4a3e, #3d6b5a);
+    color: #f7f3eb; border: none; border-radius: 14px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    letter-spacing: 1px; transition: opacity 0.2s;
+    box-shadow: 0 4px 14px rgba(45,74,62,0.25);
+  }
+  .jobs-toggle-btn:hover { opacity: 0.92; }
+  .jobs-toggle-btn .arrow {
+    display: inline-block; margin-left: 8px;
+    transition: transform 0.3s;
+  }
+  .jobs-toggle-btn.open .arrow { transform: rotate(180deg); }
+
+  .jobs-detail {
+    display: none; margin-top: 16px;
+    animation: fadeIn 0.4s ease;
+  }
+  .jobs-detail.show { display: block; }
+  .job-item {
+    background: #fff; border: 1px solid #e5dcc8; border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 10px;
+  }
+  .job-title {
+    font-size: 15px; font-weight: 600; color: #2d4a3e;
+    margin-bottom: 6px;
+  }
+  .job-desc {
+    font-size: 13px; color: #5a4f42; line-height: 1.7;
+  }
+
+  .disclaimer {
+    text-align: center; font-size: 11px; color: #a89880;
+    margin-top: 22px; line-height: 1.6;
+  }
+  .copy-toast {
+    text-align: center; font-size: 13px; color: #2d4a3e;
+    margin-top: 10px; min-height: 18px; font-weight: 500;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>秋招择业：五行告诉你<br>你适合去哪座城市、做什么行业？</h1>
+    <div class="gold-line"></div>
+    <div class="subtitle">18道题，测出你的职场五行属性</div>
+  </header>
+
+  <!-- ===== 验证码界面 ===== -->
+  <div id="codeArea">
+    <div class="lock-icon">🔒</div>
+    <div class="code-title">请输入验证码</div>
+    <div class="code-hint">输入正确验证码后进入测试</div>
+    <input type="text" id="codeInput" placeholder="请输入4位验证码" maxlength="4" inputmode="numeric">
+    <button class="btn btn-primary" onclick="checkCode()">进入测试</button>
+  </div>
+
+  <!-- ===== 答题界面 ===== -->
+  <div id="quizArea" style="display:none;">
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+    <div class="progress-text" id="progressText">第 1 题 / 共 18 题</div>
+    <div class="card" id="questionCard"></div>
+    <div class="nav-buttons" id="navButtons"></div>
+  </div>
+
+  <!-- ===== 结果界面 ===== -->
+  <div id="resultArea">
+    <div class="card">
+      <div class="result-hero">
+        <div class="element-badge" id="elBadge">金</div>
+        <div class="element-name" id="elName">金属性</div>
+        <div class="element-pct" id="elPct">匹配度 80%</div>
+      </div>
+      <div class="section-label">职场性格画像</div>
+      <div class="profile-text" id="elProfile"></div>
+      <div class="section-label">适合你的城市类型</div>
+      <div class="section-body" id="elCityType"></div>
+      <div class="city-tags" id="elCities"></div>
+      <div class="section-label">适合你的行业方向</div>
+      <div class="industry-list" id="elIndustries"></div>
+      <div class="section-label">秋招择业建议</div>
+      <div class="advice-box" id="elAdvice"></div>
+
+      <!-- 具体岗位大全 折叠区 -->
+      <button class="jobs-toggle-btn" id="jobsToggleBtn" onclick="toggleJobs()">
+        查看【金】适合的具体岗位大全 <span class="arrow">▼</span>
+      </button>
+      <div class="jobs-detail" id="jobsDetail"></div>
+    </div>
+
+    <button class="btn btn-gold" onclick="copyResult()" style="margin-top:16px;">复制结果</button>
+    <button class="btn btn-outline" onclick="resetQuiz()">重新测试</button>
+    <div class="copy-toast" id="copyToast"></div>
+    <div class="disclaimer">本测试仅供娱乐参考，不构成任何职业规划建议，结果因人而异。</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   验证码设定：8800
+   ============================================================ */
+const CORRECT_CODE = "8800";
+
+/* ============================================================
+   18 道秋招场景测试题（已去掉所有暗示性小字）
+   每个选项 score 对应五行加分（+2主属性，+1次属性）
+   ============================================================ */
+const questions = [
+  {
+    q: "拿到offer后，你最在意什么？",
+    options: [
+      { text: "薪资待遇是否达到预期", score: { jin: 2, tu: 1 } },
+      { text: "团队氛围是否合得来", score: { shui: 2, huo: 1 } },
+      { text: "公司是否有成长空间", score: { mu: 2, jin: 1 } },
+      { text: "工作是否稳定不裁员", score: { tu: 2, jin: 1 } }
+    ]
+  },
+  {
+    q: "面试被问到「你的缺点是什么」，你会？",
+    options: [
+      { text: "坦诚说一个真实缺点并给出改进方案", score: { jin: 2, tu: 1 } },
+      { text: "把缺点包装成「过度追求完美」", score: { huo: 2, jin: 1 } },
+      { text: "结合岗位需求说一个无伤大雅的点", score: { shui: 2, mu: 1 } },
+      { text: "老实说经验不足但学习能力强", score: { tu: 2, mu: 1 } }
+    ]
+  },
+  {
+    q: "一天投了20份简历都没回音，你会？",
+    options: [
+      { text: "复盘简历，针对性修改后再投", score: { jin: 2, mu: 1 } },
+      { text: "疯狂找学长学姐内推", score: { shui: 2, huo: 2 } },
+      { text: "换个赛道，试试新兴行业", score: { mu: 2, huo: 1 } },
+      { text: "不着急，按自己节奏慢慢来", score: { tu: 2, shui: 1 } }
+    ]
+  },
+  {
+    q: "你理想中的第一份工作是？",
+    options: [
+      { text: "大平台、体系完善、晋升清晰", score: { jin: 2, tu: 1 } },
+      { text: "能学到东西、有牛人带", score: { mu: 2, shui: 1 } },
+      { text: "同事关系好、经常团建", score: { shui: 2, huo: 1 } },
+      { text: "离家近、不加班、稳定", score: { tu: 2, jin: 1 } }
+    ]
+  },
+  {
+    q: "领导临时安排一个你没做过的任务，第一反应是？",
+    options: [
+      { text: "先拆解目标，制定计划再动手", score: { jin: 2, tu: 1 } },
+      { text: "兴奋，终于有机会学新东西", score: { mu: 2, huo: 2 } },
+      { text: "先找有经验的同事请教", score: { shui: 2, tu: 1 } },
+      { text: "硬着头皮上，边做边摸索", score: { tu: 2, mu: 1 } }
+    ]
+  },
+  {
+    q: "你更看重公司的哪方面福利？",
+    options: [
+      { text: "明确的绩效考核和奖金制度", score: { jin: 2, tu: 1 } },
+      { text: "培训预算和学习资源", score: { mu: 2, jin: 1 } },
+      { text: "弹性工作和团队氛围", score: { shui: 2, mu: 1 } },
+      { text: "五险一金足额、不裁员", score: { tu: 2, jin: 1 } }
+    ]
+  },
+  {
+    q: "小组项目中，你通常扮演什么角色？",
+    options: [
+      { text: "制定计划、分配任务、把控进度", score: { jin: 2, tu: 1 } },
+      { text: "出点子、想创意、提供新思路", score: { mu: 2, huo: 1 } },
+      { text: "协调矛盾、活跃气氛、凝聚团队", score: { shui: 2, huo: 1 } },
+      { text: "默默干活、把落地执行做到位", score: { tu: 2, jin: 1 } }
+    ]
+  },
+  {
+    q: "你对「加班文化」的态度是？",
+    options: [
+      { text: "只要回报合理，加班可以接受", score: { jin: 2, huo: 1 } },
+      { text: "为了成长和项目成果，偶尔拼一下", score: { mu: 2, huo: 2 } },
+      { text: "不喜欢但会配合团队节奏", score: { shui: 2, tu: 1 } },
+      { text: "坚决反对，工作生活平衡最重要", score: { tu: 2, shui: 1 } }
+    ]
+  },
+  {
+    q: "父母希望你回老家考公，你会？",
+    options: [
+      { text: "综合分析利弊，用数据说服父母", score: { jin: 2, mu: 1 } },
+      { text: "坚持自己的想法，去大城市闯一闯", score: { huo: 2, mu: 1 } },
+      { text: "和父母深入沟通，找折中方案", score: { shui: 2, tu: 1 } },
+      { text: "听父母的，稳定比什么都重要", score: { tu: 2, jin: 1 } }
+    ]
+  },
+  {
+    q: "你在团队中最不能忍受的是？",
+    options: [
+      { text: "规则朝令夕改，目标不清晰", score: { jin: 2, tu: 1 } },
+      { text: "没有成长空间，日复一日重复", score: { mu: 2, huo: 1 } },
+      { text: "同事之间冷漠，没有人情味", score: { shui: 2, tu: 1 } },
+      { text: "公司不稳定，随时可能裁员", score: { tu: 2, jin: 1 } }
+    ]
+  },
+  {
+    q: "如果让你选一个职场超能力，你选？",
+    options: [
+      { text: "超强执行力，说到做到", score: { jin: 2, tu: 1 } },
+      { text: "超强学习力，什么都能快速上手", score: { mu: 2, shui: 1 } },
+      { text: "超强共情力，一眼看穿别人想法", score: { shui: 2, huo: 1 } },
+      { text: "超强耐力，持久战从不掉线", score: { tu: 2, jin: 1 } }
+    ]
+  },
+  {
+    q: "你觉得自己最大的职场优势是？",
+    options: [
+      { text: "目标感强，不达目的不罢休", score: { jin: 2, huo: 1 } },
+      { text: "思维活跃，总能想出新点子", score: { mu: 2, huo: 1 } },
+      { text: "人缘好，跟谁都能聊得来", score: { shui: 2, huo: 1 } },
+      { text: "踏实可靠，交给我的事放心", score: { tu: 2, jin: 1 } }
+    ]
+  },
+  {
+    q: "两个offer：大厂普通岗 vs 小公司核心岗，你选？",
+    options: [
+      { text: "大厂，平台和履历更重要", score: { jin: 2, tu: 1 } },
+      { text: "小公司核心岗，成长空间大", score: { mu: 2, huo: 1 } },
+      { text: "看团队和领导，跟对人最重要", score: { shui: 2, tu: 1 } },
+      { text: "看哪个更稳定，不轻易裁员", score: { tu: 2, jin: 1 } }
+    ]
+  },
+  {
+    q: "你怎么看「第一份工作决定职业起点」？",
+    options: [
+      { text: "认同，起点高才能走得远", score: { jin: 2, mu: 1 } },
+      { text: "不完全认同，持续学习更重要", score: { mu: 2, shui: 1 } },
+      { text: "看行业和人脉积累，平台只是一方面", score: { shui: 2, huo: 1 } },
+      { text: "稳扎稳打，每一步都算数", score: { tu: 2, jin: 1 } }
+    ]
+  },
+  {
+    q: "工作中遇到不公平待遇，你会？",
+    options: [
+      { text: "用规则和数据据理力争", score: { jin: 2, huo: 1 } },
+      { text: "默默提升自己，用实力说话", score: { mu: 2, tu: 1 } },
+      { text: "找合适时机和领导沟通", score: { shui: 2, jin: 1 } },
+      { text: "忍一忍，稳定最重要", score: { tu: 2, shui: 1 } }
+    ]
+  },
+  {
+    q: "你理想中的职场导师是什么样的？",
+    options: [
+      { text: "目标清晰、能带教方法论", score: { jin: 2, mu: 1 } },
+      { text: "视野开阔、能启发思考", score: { mu: 2, shui: 1 } },
+      { text: "亦师亦友、愿意倾听", score: { shui: 2, huo: 1 } },
+      { text: "稳重可靠、能兜底", score: { tu: 2, jin: 1 } }
+    ]
+  },
+  {
+    q: "毕业后你最想去什么样的城市？",
+    options: [
+      { text: "一线大都市，资源集中机会多", score: { jin: 2, huo: 1 } },
+      { text: "新兴活力城市，发展空间大", score: { mu: 2, huo: 1 } },
+      { text: "宜居包容城市，生活幸福感高", score: { shui: 2, tu: 1 } },
+      { text: "离家近的城市，安稳踏实", score: { tu: 2, shui: 1 } }
+    ]
+  },
+  {
+    q: "用一个词形容你理想的职场状态，你选？",
+    options: [
+      { text: "高效", score: { jin: 2, tu: 1 } },
+      { text: "成长", score: { mu: 2, huo: 1 } },
+      { text: "融洽", score: { shui: 2, huo: 1 } },
+      { text: "安稳", score: { tu: 2, jin: 1 } }
+    ]
+  }
+];
+
+/* ============================================================
+   5 种结果文案 + 具体岗位大全
+   ============================================================ */
+const results = {
+  jin: {
+    name: "金", cls: "el-jin",
+    profile: "你是那种一旦锁定目标就会全速前进的人。在别人还在纠结选哪个方向的时候，你已经把路径拆成了一步一步的行动清单。你欣赏规则清晰的环境，因为在透明的游戏规则下，你的执行力能迅速转化为成果。同事眼里的你靠谱、高效、从不拖泥带水——你可能不是团队里最会说的人，但一定是最能扛事的人。",
+    cityType: "金系适合：资源集中、规则透明、平台层级清晰的一线城市",
+    cities: ["北京", "上海", "深圳"],
+    industries: ["金融", "审计", "法律", "体制内", "咨询"],
+    advice: "当前秋招竞争激烈，建议优先投递平台大、规则透明的公司，你的执行力在标准化体系里能快速得到认可。同时关注管培生项目，这类岗位的晋升路径最适合目标感强的你。",
+    jobs: [
+      { title: "投行/券商分析师", desc: "日常就是做底稿、画PPT、写招股书，忙起来凌晨两点是常态。适合抗压能力强、对数字敏感的人，熬出头了回报很可观。" },
+      { title: "四大审计员", desc: "核对企业账目，整理审计底稿，找财务漏洞。出差多到你怀疑人生，但两年下来能快速看懂一家公司是怎么运转的，跳槽路径很宽。" },
+      { title: "企业法务/合规专员", desc: "审查公司合同，确保业务符合法律法规，日常跟律师和监管打交道。适合细心、有耐心、对规则敏感的人。" },
+      { title: "银行管培生/风控岗", desc: "轮岗后定岗，风控方向主要做贷款审批、风险数据监控。工作稳定、规则清晰，适合求稳又想进金融圈的人。" }
+    ]
+  },
+  mu: {
+    name: "木", cls: "el-mu",
+    profile: "你是一个永远在生长的人。对你来说，第一份工作不是终点，而是一个让自己变得更厉害的起点。你害怕重复和停滞，渴望在一个充满可能性的环境里不断吸收新东西。你思维活跃，总能在别人看不到的地方发现机会——你的创造力和人文关怀，让你不只是一个执行者，更是一个能带来新视角的人。",
+    cityType: "木系适合：创新活力强、新兴产业聚集、年轻人多的成长型城市",
+    cities: ["杭州", "成都", "广州"],
+    industries: ["互联网", "教育", "文创", "品牌策划", "新能源"],
+    advice: "秋招季不要只盯着大厂的固定岗位，多关注新兴赛道（AI、新能源、出海）的成长型公司。你的学习能力在快速变化的行业里最值钱，起薪低一点没关系，关键看三年后的天花板。",
+    jobs: [
+      { title: "互联网产品经理", desc: "画原型图、定功能需求、跟程序员battle。需要不断学习新事物，思维要活，适合喜欢折腾新东西的人。" },
+      { title: "品牌策划/活动运营", desc: "想创意方案、搞线上线下活动、写推广文案。脑洞要大，执行力要强，适合喜欢从0到1搞事情的人。" },
+      { title: "教育培训讲师/教研", desc: "做课程设计、给学生讲课、持续输出知识。适合表达能力强、喜欢分享、有学科特长的人。" },
+      { title: "文创设计/内容编辑", desc: "做视觉设计、写公众号推文、策划IP内容。适合有审美、有文字功底、喜欢创造美好事物的人。" }
+    ]
+  },
+  shui: {
+    name: "水", cls: "el-shui",
+    profile: "你是那种走到哪里都能快速融入的人。你的共情力是天生的超能力——你能敏锐地感知到团队的情绪变化，也能在不同的人之间找到沟通的桥梁。你不喜欢硬碰硬，更擅长用柔软的方式解决问题。在一个需要跨部门协作、对外沟通的环境里，你的适应力和人际敏感度会成为你最大的竞争力。",
+    cityType: "水系适合：临江沿海、包容度高、节奏可快可慢的城市",
+    cities: ["上海", "南京", "厦门"],
+    industries: ["公关", "运营", "咨询", "外贸", "人力资源"],
+    advice: "秋招中你的沟通优势要主动用起来——多参加线下宣讲会和校友内推，面对面交流比海投简历有效得多。优先选择有跨部门协作或对外沟通机会的岗位，你能在流动中发挥最大价值。",
+    jobs: [
+      { title: "公关媒介/公关专员", desc: "对接媒体记者、写新闻通稿、维护公司品牌形象。需要情商高、会来事，适合擅长跟人打交道的人。" },
+      { title: "海外运营/跨境电商", desc: "运营海外社交媒体、跟外国客户沟通、处理跨国订单。英语要好，适合喜欢跨文化交流的人。" },
+      { title: "管理咨询顾问", desc: "去客户公司调研、做行业分析、画PPT出报告。出差多、节奏快，但能快速积累行业视野，适合逻辑好又爱沟通的人。" },
+      { title: "HR招聘/员工关系", desc: "跟候选人聊天、安排面试、处理员工入离职。适合喜欢倾听、有亲和力、擅长观察人的人。" }
+    ]
+  },
+  huo: {
+    name: "火", cls: "el-huo",
+    profile: "你是那种走到哪里都自带光芒的人。你的热情和行动力是天生的——别人还在讨论要不要做的时候，你已经冲出去试了。你渴望舞台，享受被看见的感觉，你的营销天赋和社交能力让你在任何需要表达和影响他人的场合都如鱼得水。你不适合闷头做事的环境，你的能量需要在人群中才能被点燃。",
+    cityType: "火系适合：热闹繁华、机会密集、夜生活丰富的城市",
+    cities: ["广州", "长沙", "重庆"],
+    industries: ["销售", "市场营销", "自媒体", "公关", "直播电商"],
+    advice: "别在秋招里低调，你的热情和表达力就是最大的武器。群面要主动争取leader角色，单面要大胆展示自己的项目经历。去机会多、拼劲足的城市和行业，你的能量需要一个够大的舞台。",
+    jobs: [
+      { title: "市场营销专员", desc: "搞投放、做拉新活动、盯广告数据，KPI导向非常强。适合目标感强、喜欢用数据说话、不怕压力的人。" },
+      { title: "大客户销售（B端销售）", desc: "找企业客户谈合作、签单拿提成。需要极强的社交能力和抗压能力，做得好收入上限很高。" },
+      { title: "新媒体运营/主播", desc: "拍短视频、写小红书爆款文案、直播带货。适合表现力强、网感好、不怕镜头的人，风口上机会很多。" },
+      { title: "公关活动执行", desc: "办发布会、做线下路演、落地各种大活动。适合精力旺盛、喜欢热闹、享受把一场活动从0做到1的人。" }
+    ]
+  },
+  tu: {
+    name: "土", cls: "el-tu",
+    profile: "你是那种让人安心的存在。在这个人人都在谈颠覆和变化的时代，你选择了稳扎稳打。你不追求一夜暴富，更看重长期的积累和确定性。交给你的事，你一定会做到位——你的踏实和可靠，是团队里最稀缺的品质。你可能不是最快的那一个，但一定是走得最远的那一个。",
+    cityType: "土系适合：产业基础扎实、生活成本适中、节奏平稳的城市",
+    cities: ["苏州", "武汉", "合肥"],
+    industries: ["制造", "国企", "工程", "财务", "供应链"],
+    advice: "秋招季不要被周围人的焦虑带着走，按自己的节奏投递就好。优先关注国企、央企和制造业的稳定岗位，这些赛道在当前经济环境下抗风险能力最强。稳扎稳打是你最独特的竞争优势，不要为了赶进度而将就。",
+    jobs: [
+      { title: "财务/会计", desc: "做账报税、出财务报表、管理公司现金流。适合细心、对数字敏感、追求稳定的人，越老越吃香。" },
+      { title: "供应链/采购专员", desc: "找供应商、管库存、催物流，确保货物按时到位。适合有条理、有耐心、擅长协调的人，制造业和电商都需要。" },
+      { title: "质量工程师/工艺工程师", desc: "在工厂盯生产线、优化制造流程、确保产品质量。适合踏实肯干、喜欢钻研技术的人，制造业大厂需求大。" },
+      { title: "国企/事业单位综合岗", desc: "写材料、做行政、处理日常事务。稳定、福利好、压力小，适合求稳、能接受按部就班的人。" }
+    ]
+  }
+};
+
+/* ============================================================
+   状态与逻辑
+   ============================================================ */
+let currentQ = 0;
+const answers = new Array(questions.length).fill(null); // 记录每题选择
+let lastResult = null;
+
+/* 验证码校验 */
+function checkCode() {
+  const input = document.getElementById('codeInput').value.trim();
+  if (input === CORRECT_CODE) {
+    document.getElementById('codeArea').style.display = 'none';
+    document.getElementById('quizArea').style.display = 'block';
+    renderQuestion();
+  } else {
+    alert('验证码错误，请检查后重新输入');
+    document.getElementById('codeInput').value = '';
+    document.getElementById('codeInput').focus();
+  }
+}
+document.getElementById('codeInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') checkCode();
+});
+
+/* 渲染当前题目 + 导航按钮 */
+function renderQuestion() {
+  const q = questions[currentQ];
+  const selected = answers[currentQ];
+
+  const card = document.getElementById('questionCard');
+  card.innerHTML = `
+    <div class="question-text">${q.q}</div>
+    <div class="options">
+      ${q.options.map((opt, oi) => `
+        <div class="option ${selected === oi ? 'selected' : ''}" data-o="${oi}" onclick="selectOption(${oi})">
+          <span class="option-letter">${'ABCD'[oi]}</span>
+          <span>${opt.text}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // 进度条
+  const pct = ((currentQ + 1) / questions.length) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressText').textContent =
+    `第 ${currentQ + 1} 题 / 共 ${questions.length} 题`;
+
+  // 导航按钮
+  const nav = document.getElementById('navButtons');
+  const isFirst = currentQ === 0;
+  const isLast = currentQ === questions.length - 1;
+
+  let html = '';
+  if (!isFirst) {
+    html += `<button class="btn btn-outline btn-half" onclick="prevQuestion()">上一题</button>`;
+  }
+  if (isLast) {
+    html += `<button class="btn btn-gold btn-half" onclick="submitQuiz()">查看结果</button>`;
+  } else {
+    html += `<button class="btn btn-primary btn-half" onclick="nextQuestion()">下一题</button>`;
+  }
+  nav.innerHTML = html;
+}
+
+/* 选中选项（不自动跳转，等用户点下一题） */
+function selectOption(oi) {
+  answers[currentQ] = oi;
+  document.querySelectorAll('.option').forEach(el => {
+    el.classList.toggle('selected', parseInt(el.dataset.o) === oi);
+  });
+}
+
+/* 上一题 */
+function prevQuestion() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+/* 下一题 */
+function nextQuestion() {
+  if (answers[currentQ] === null) {
+    alert('请先选择一个选项再继续哦');
+    return;
+  }
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    renderQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+/* 提交并计算结果 */
+function submitQuiz() {
+  // 检查是否有未答题
+  const unanswered = answers.findIndex(a => a === null);
+  if (unanswered !== -1) {
+    alert(`还有题目没选哦（第 ${unanswered + 1} 题）`);
+    currentQ = unanswered;
+    renderQuestion();
+    return;
+  }
+
+  // 统计得分
+  const scores = { jin: 0, mu: 0, shui: 0, huo: 0, tu: 0 };
+  answers.forEach((oi, qi) => {
+    const s = questions[qi].options[oi].score;
+    for (const k in s) scores[k] += s[k];
+  });
+
+  // 找最高分
+  let maxKey = 'jin', maxVal = -1;
+  for (const k in scores) {
+    if (scores[k] > maxVal) { maxVal = scores[k]; maxKey = k; }
+  }
+
+  // 匹配度百分比
+  const total = Object.values(scores).reduce((a, b) => a + b, 0);
+  const pct = Math.min(95, Math.round((maxVal / total) * 100 * 2.2));
+
+  const r = results[maxKey];
+  lastResult = { ...r, pct };
+
+  // 渲染结果
+  const badge = document.getElementById('elBadge');
+  badge.textContent = r.name;
+  badge.className = 'element-badge ' + r.cls;
+  document.getElementById('elName').textContent = r.name + '属性';
+  document.getElementById('elPct').textContent = '匹配度 ' + pct + '%';
+  document.getElementById('elProfile').textContent = r.profile;
+  document.getElementById('elCityType').textContent = r.cityType;
+  document.getElementById('elCities').innerHTML =
+    r.cities.map(c => `<span class="city-tag">${c}</span>`).join('');
+  document.getElementById('elIndustries').innerHTML =
+    r.industries.map(i => `<span class="industry-tag">${i}</span>`).join('');
+  document.getElementById('elAdvice').textContent = r.advice;
+
+  // 岗位大全按钮文字
+  const toggleBtn = document.getElementById('jobsToggleBtn');
+  toggleBtn.innerHTML = `查看【${r.name}】适合的具体岗位大全 <span class="arrow">▼</span>`;
+  toggleBtn.classList.remove('open');
+
+  // 渲染岗位详情（默认收起）
+  const detail = document.getElementById('jobsDetail');
+  detail.innerHTML = r.jobs.map(j => `
+    <div class="job-item">
+      <div class="job-title">${j.title}</div>
+      <div class="job-desc">${j.desc}</div>
+    </div>
+  `).join('');
+  detail.classList.remove('show');
+
+  document.getElementById('quizArea').style.display = 'none';
+  document.getElementById('resultArea').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* 展开/收起 具体岗位 */
+function toggleJobs() {
+  const detail = document.getElementById('jobsDetail');
+  const btn = document.getElementById('jobsToggleBtn');
+  detail.classList.toggle('show');
+  btn.classList.toggle('open');
+}
+
+/* 复制结果到剪贴板 */
+function copyResult() {
+  if (!lastResult) return;
+  const r = lastResult;
+  const jobsText = r.jobs.map(j => `· ${j.title}：${j.desc}`).join('\n');
+  const text =
+`【秋招择业五行测试结果】
+我的主属性：${r.name}属性（匹配度 ${r.pct}%）
+
+职场性格画像：
+${r.profile}
+
+适合城市类型：${r.cityType}
+推荐城市：${r.cities.join('、')}
+
+适合行业方向：${r.industries.join('、')}
+
+具体岗位大全：
+${jobsText}
+
+秋招择业建议：
+${r.advice}
+
+（本测试仅供娱乐参考，不构成任何职业规划建议）`;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showCopyToast('已复制，快去发小红书吧 ✨');
+    }).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showCopyToast('已复制，快去发小红书吧 ✨');
+  } catch (e) {
+    showCopyToast('复制失败，请手动长按选择复制');
+  }
+  document.body.removeChild(ta);
+}
+
+function showCopyToast(msg) {
+  const el = document.getElementById('copyToast');
+  el.textContent = msg;
+  setTimeout(() => { el.textContent = ''; }, 2500);
+}
+
+/* 重新测试 */
+function resetQuiz() {
+  currentQ = 0;
+  answers.fill(null);
+  lastResult = null;
+  document.getElementById('resultArea').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
+  document.getElementById('copyToast').textContent = '';
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
